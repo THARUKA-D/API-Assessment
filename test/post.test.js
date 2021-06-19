@@ -10,7 +10,7 @@ const app = require('../app'); //reference to you app.js file
 describe("POST /", function(){
     it("This shoud return status code 200 after email is sent and saved in mongo db", function(done) {
       supertest(app)
-        .post("/")
+        .post("/v1/emails")
         .send( Mail( {
             to: "test@mail.com",
             subject: "mail subject",
@@ -18,7 +18,7 @@ describe("POST /", function(){
             send_at: 1234568977 , //unix time returns an int
             status: "Status"
         }))
-        .expect(200)
+        .expect(202)
         .end(function(err, res){
           if (err) done(err);
           done();

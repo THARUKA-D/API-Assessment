@@ -102,7 +102,7 @@ router.post('/', async (req,respose) =>{
         subject: req.body.subject,
         html: req.body.html,
         send_at: parseInt( sendMailAt/1000 ),
-        status: sendEmailAt() ? "SENT": "QUEUED"
+        status:  sendEmailAt() ? "SENT": "QUEUED"
     });
 
     // if sl time 3.30AM - 12.30PM msg send 
@@ -120,8 +120,9 @@ router.post('/', async (req,respose) =>{
 async function sendMailNow(sendMail,respose){
 try {
     await sgMail.send(sendMail).then((res) => {
-        if(res[0].statusCode == 202){// if successfuly sent the email
-            console.log("SENT", res[0].statusCode);
+        console.log("SENT", res[0].statusCode);
+        if(res[0].statusCode == 202){// valid, and queued to be delivered.
+          
            
             sendMail.save()
             .then(data =>{
@@ -145,9 +146,11 @@ try {
 
 async function sendMailNexdayMorning(sendMail,respose){
     
+    
     try {
         await  sgMail.send(sendMail).then((res) => {
-           if(res[0].statusCode == 202){// if successfuly sent the email
+            console.log("Q", res[0].statusCode);
+           if(res[0].statusCode == 202){// valid, and queued to be delivered.
   
             sendMail.save()
               .then(data =>{
