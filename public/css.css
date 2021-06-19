@@ -1,0 +1,54 @@
+body {
+  background-image: url("bi.jpg");
+  text-align: center;
+}
+.mainContainer {
+  margin-left: 35%;
+
+  background-color: rgb(189, 184, 184);
+  opacity: 0.9;
+  border-radius: 20px;
+  text-align: center;
+  height: auto;
+  width: 500px;
+}
+.buttons {
+  height: 30px;
+  width: 100px;
+  border-radius: 30px;
+  font-size: 15px;
+  background-color: crimson;
+  border-style: none;
+  margin-bottom: 10px;
+}
+.buttons:hover {
+  background-color: chartreuse;
+}
+#email-body {
+  width: 93%;
+  height: 400px;
+  resize: none;
+  border-radius: 5px;
+  border-style: none;
+}
+br {
+  content: "";
+  margin: 2em;
+  display: block;
+  font-size: 24%;
+}
+#emailTo {
+  margin-top: 10px;
+}
+input {
+  width: 450px;
+  border-radius: 5px;
+  border: none;
+}
+textarea {
+  border-radius: 5px;
+  border: none;
+  width: 450px;
+  height: 200px;
+  resize: none;
+}

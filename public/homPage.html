@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Mail</title>
+    <link rel="stylesheet" href="css.css">
+</head>
+<body>
+    <div class="mainContainer">
+        <h2>Send your mail</h2>
+        <form class="emilForm"  autoComplete="off">
+            <input type="email" id="emailTo" placeholder="TO " >
+            <br>
+            <input type="text" id="subject" placeholder="SUBJECT">
+            <br>
+            <textarea id="emailBody" placeholder="Email Body"></textarea>
+            <br>
+            <button class="buttons" type="submit" id="submit">Send Mail</button>
+        </form>
+        <br>
+        <br>
+        <br>
+        <hr>
+        <h2>Get email status</h2 >
+        <form class="getEmailForm">
+            <input type="text" id="emailIdGet" placeholder="Enter mail Id to get mail." >
+            <br>
+            <button class="buttons"  type="submit" id="submit">Get Email</button>
+        </form>
+        <br>
+        <br>
+        <br>
+        <hr>
+        <h2>Delete massage</h2>
+        <form class="deleteEmailForm">
+            <input type="text" id="emailIdDelete" placeholder="Enter mail Id to Delete." >
+            <br>
+            <button class="buttons"  type="submit" id="submit">Delete Mail</button>
+        </form>
+
+
+        <script src="homePage.js"></script>
+    </div>
+</body>
+</html>
