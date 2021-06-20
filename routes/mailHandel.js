@@ -104,7 +104,9 @@ router.post('/', async (req,respose) =>{
     try {
         await  sgMail.send(sendMail).
         then((res) => {
-            console.log("Email status code", res[0].statusCode); 
+            if(res[0].statusCode == 202){// valid Email, queued or delivered.
+                console.log("Email status code", res[0].statusCode); 
+            }
           
         });
     }     
