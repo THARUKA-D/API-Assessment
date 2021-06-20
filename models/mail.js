@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 
 const mailSchema = mongoose.Schema({
+
+    id:String,
     
     to:String,
     from: {
@@ -16,8 +18,8 @@ const mailSchema = mongoose.Schema({
     subject: String,
     html: String,
     send_at:  {
-        type: Number,
-        default: null
+        type: String,
+        default: "Format Error"
     },
     status:{ 
         type:String,

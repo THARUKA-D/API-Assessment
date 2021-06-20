@@ -54,34 +54,25 @@ let sendMailAt = 0;
 
 function sendEmailAt(){ // (Sydney time) to set the time to send the mail 
 
-    /// 3.30am 12.30pm 
-    
- 
     let currentTime = new Date();
-    const UnixTimeFor1H = 3600000 ; // 3600 mili seconds = 1 H
+    const UnixTimeFor1H = 3600000 ; // 3600000 mili seconds = 1 H
 
     let local330Am =  new Date(currentTime.getFullYear(),currentTime.getMonth(),currentTime.getDate(),3,30,00,00);
     let local1230Pm = new Date(currentTime.getFullYear(),currentTime.getMonth(),currentTime.getDate(),12,30,00,00);
     let localNextDay12AM = UnixTimeFor1H * 11.5  + local1230Pm.valueOf();
     let localNextDay8AM = localNextDay12AM + UnixTimeFor1H * 8;
 
-    // console.log("c Time : " , currentTime.valueOf());
-    // console.log("c l330 : " , local330Am.valueOf());
-    // console.log("c l1230 : " , local1230Pm.valueOf());
-    // console.log("c n12 : " , localNextDay12AM.valueOf());
-    // console.log("c n8 : " , localNextDay8AM.valueOf());
+   
     if( local1230Pm.valueOf()  > currentTime.valueOf() && local330Am.valueOf()  < currentTime.valueOf()){
         sendMailAt = currentTime.valueOf();
-        // console.log("c1 : " , sendMailAt.valueOf());
         return true;
     }
     else if (local1230Pm.valueOf()  < currentTime.valueOf() && localNextDay12AM.valueOf()  > currentTime.valueOf()){
         sendMailAt = localNextDay8AM.valueOf();
-        // console.log("c2 : " , sendMailAt.valueOf());
+      
         return false;
     }else{
         sendMailAt = local330Am.valueOf();
-        // console.log("c3 : " , sendMailAt.valueOf());
         return false;
     }
 }
@@ -94,86 +85,89 @@ router.post('/', async (req,respose) =>{
     console.log("[POST] Incomming data from front-end : " , req.body);
 
     sendEmailAt();
-  console.log(sendMailAt/1000);
+    console.log(sendMailAt/1000);
     let sendMail;
     
-    sendMail = new Mail( {
+    sendMail =  {
+        to: req.body.to,
+        from:{
+            email:"tharukajn@gmail.com",
+            name: "Tharuka Jayasooriya"
+        },
+        subject: req.body.subject,
+        html: req.body.html,
+        send_at: parseInt( sendMailAt/1000),
+       
+    };
+    console.log("sendMailAt/1000");
+
+    try {
+        await  sgMail.send(sendMail).
+        then((res) => {
+            console.log("Email status code", res[0].statusCode); 
+          
+        });
+    }     
+    catch (error) {
+
+      let saveMail  = new Mail({
         to: req.body.to,
         subject: req.body.subject,
         html: req.body.html,
-        send_at: parseInt( sendMailAt/1000 ),
-        status:  sendEmailAt() ? "SENT": "QUEUED"
-    });
+        });
 
-    // if sl time 3.30AM - 12.30PM msg send 
-    sendEmailAt() ? 
-    sendMailNow(sendMail,respose):
-
-    //if after 12.30pm msg que.
-    sendMailNexdayMorning(sendMail,respose);
-   
-  
-});
-
-
-
-async function sendMailNow(sendMail,respose){
-try {
-    await sgMail.send(sendMail).then((res) => {
-        console.log("SENT", res[0].statusCode);
-        if(res[0].statusCode == 202){// valid, and queued to be delivered.
-          
-           
-            sendMail.save()
-            .then(data =>{
+        saveMail.save()
+        .then(data =>{
             let details = {
                 id: data._id,
                 status: data.status
             }
-            respose.json(details);
-          
-            }).catch(err =>{
-            respose.json({message: err});
-            });
-        }
-      });
-
-    
-    } catch (error) {
-        console.log(error);
-    }
-};
-
-async function sendMailNexdayMorning(sendMail,respose){
-    
-    
-    try {
-        await  sgMail.send(sendMail).then((res) => {
-            console.log("Q", res[0].statusCode);
-           if(res[0].statusCode == 202){// valid, and queued to be delivered.
-  
-            sendMail.save()
-              .then(data =>{
-              let details = {
-                  id: data._id,
-                  status: data.status
-              }
-              respose.json(details);
-              
-              }).catch(err =>{
-              respose.json({message: err});
-              });
-            }  
-        });
-         // respose.json(sendMail);
-    } catch (error) {
-      console.log(error);
-     
+        respose.json(details);
+        }).catch(err =>{
+            console.log("Email status code : Failed!"); 
+        })
     };
-};
 
+    var events = req.body;
+    console.log("EVENT body", events);
+    events.forEach(function (deliveryEvent) {
+        // Here, you now have each event and can process them how you like
+        console.log("EVENT ", deliveryEvent.event);
 
+        processEvent(deliveryEvent);
+        let mailStatus;
 
+        if(deliveryEvent.event == "Processed"){// meaning is mail is queued
+            mailStatus = "QUEUED";
+        } 
+
+        if(deliveryEvent.event == "delivered"){// meaning is mail is sent
+            mailStatus = "SENT";
+        } 
+
+        // update the db 
+
+        let saveMail  = new Mail({
+            _id: deliveryEvent.sg_message_id,
+            to: req.body.to,
+            subject: req.body.subject,
+            html: req.body.html,
+            send_at:  `${sendMailAt/1000}`,
+            status:deliveryEvent.event,
+            });
+    
+            saveMail.save()
+            .then(data =>{
+                let details = {
+                    id: data._id,
+                    status: data.status
+                }
+            respose.json(details);
+            }).catch(err =>{
+                respose.json({message: err});
+        });
+    });
+});
 
 
 module.exports = router;
