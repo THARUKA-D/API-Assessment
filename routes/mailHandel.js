@@ -131,7 +131,7 @@ router.post("/", async (req, respose) => {
 	// if local time  is in between 3.30AM - 12.30PM msg send
 	sendEmailAt()
 		? sendMailNow(sendMail, respose)
-		: //if after 12.30pm msg que.
+		: //if after 12.30pm msg queue .
 		  sendMailNexdayMorning(sendMail, respose);
 
 	//------------------------------------------------------ need to save the endpoint url in sendgrid to run the code as expected ---------------------------------------------------
@@ -235,7 +235,7 @@ async function sendMailNow(sendMail, respose) {
 		await sgMail.send(sendMail).then((res) => {
 			// sending th mail using sendgrid
 			if (res[0].statusCode == 202) {
-				// 202 means email is recived to sendgrid and it has been qeued or sent
+				// 202 means email is recived to sendgrid and it has been queued  or sent
 
 				let saveMail = new Mail({
 					to: sendMail.to,
