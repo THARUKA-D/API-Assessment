@@ -5,27 +5,28 @@ const Mail = require("../models/mail");
 const router = express.Router();
 require("dotenv/config");
 
-//const API_KEY  = "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";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 router.use(express.static("public")); // giving access to the html page with its css file and js file
 
 router.get("/", (req, res) => {
+	// html page
 	res.sendFile(path.resolve("public/homPage.html"));
 });
 
 router.get("/:id", async (req, res) => {
 	//[GET]
-	console.log("[GET] Incomming data from front-end, email id:", req.params.id);
+	console.log("[GET] Incomming data from front-end, email id:", req.params.id); // mail id to get the email
 	try {
 		const object = await Mail.findById(req.params.id);
 		const searchedMail = {
 			id: object._id,
 			status: object.status,
 		};
-		res.json(searchedMail);
+		res.json(searchedMail); // response
+		console.log("[GET] email response : ", searchedMail); //  response in console
 	} catch (error) {
-		res.json("Error !!");
+		res.json("[GET] email response : Email id is not valid");
 	}
 });
 
@@ -34,7 +35,7 @@ router.delete("/:id", async (req, res) => {
 	console.log(
 		"[DELETE] Incomming data from front-end, email id:",
 		req.params.id
-	);
+	); // mail id to delete the email
 
 	try {
 		const object = await Mail.findByIdAndDelete(req.params.id);
@@ -43,19 +44,27 @@ router.delete("/:id", async (req, res) => {
 			delete: object == null ? "Email Not Found" : "Successful",
 		};
 		res.send(searchedMail);
+		console.log("[DELETE] email response : ", searchedMail);
 	} catch (error) {
 		const searchedMail = {
 			id: object.id,
 			delete: "Faild",
 		};
 		res.send(searchedMail);
+		console.log("[DELETE] email response : Email id is not valid");
 	}
 });
 
 let sendMailAt = 0;
 
 function sendEmailAt() {
-	// (Sydney time) to set the time to send the mail
+	/*
+	 * Sydney, Australia is 4 hours and 30 minutes ahead of Sri Lanka
+	 *
+	 *local330Am  (3.30 Am in Sri lanka) = 8.00 Am in sydney
+	 *local1230Pm (12.30 Pm in Sri lanka) = 5.00 Pm in sydney
+	 *
+	 */
 
 	let currentTime = new Date();
 	const UnixTimeFor1H = 3600000; // 3600000 mili seconds = 1 H
@@ -103,11 +112,12 @@ function sendEmailAt() {
 router.post("/", async (req, respose) => {
 	console.log("[POST] Incomming data from front-end : ", req.body);
 
-	sendEmailAt();
+	sendEmailAt(); // getting the time to send the mail
 
 	let sendMail;
 
 	sendMail = {
+		// object to send the mail
 		to: req.body.to,
 		from: {
 			email: "tharukajn@gmail.com",
@@ -144,7 +154,7 @@ router.post("/", async (req, respose) => {
 	 *
 	 */
 
-	// try {
+	// try {  // sending the mail using sendgrid
 	// 	await sgMail.send(sendMail).then((res) => {
 	// 		if (res[0].statusCode == 202) {
 	// 			// valid Email, queued or delivered.
@@ -158,7 +168,7 @@ router.post("/", async (req, respose) => {
 	// 		html: req.body.html,
 	// 	});
 
-	// 	saveMail
+	// 	saveMail  // saving the mail
 	// 		.save()
 	// 		.then((data) => {
 	// 			let details = {
@@ -175,24 +185,24 @@ router.post("/", async (req, respose) => {
 	//
 	// var events = req.body;
 	// console.log("EVENT body", events);
-	// events.forEach(function (deliveryEvent) {
+	// events.forEach(function (deliveryEvent) {    // catching the response from sendgrid webhook
 	// 	// Here, you now have each event and can process them how you like
 	// 	console.log("EVENT ", deliveryEvent.event);
 
 	// 	processEvent(deliveryEvent);
 	// 	let mailStatus;
 
-	// 	if (deliveryEvent.event == "Processed") {
-	// 		// meaning is mail is queued
+	// 	if (deliveryEvent.event == "Processed") { // meaning is mail is queued
+	//
 	// 		mailStatus = "QUEUED";
 	// 	}
 
-	// 	if (deliveryEvent.event == "delivered") {
-	// 		// meaning is mail is sent
+	// 	if (deliveryEvent.event == "delivered") { // meaning is mail is sent
+	//
 	// 		mailStatus = "SENT";
 	// 	}
 
-	// 	// update the db
+	// 	// update the mongo db
 
 	// 	let saveMail = new Mail({
 	// 		_id: deliveryEvent.sg_message_id,
@@ -223,10 +233,9 @@ router.post("/", async (req, respose) => {
 async function sendMailNow(sendMail, respose) {
 	try {
 		await sgMail.send(sendMail).then((res) => {
+			// sending th mail using sendgrid
 			if (res[0].statusCode == 202) {
-				// if successfuly sent the email
-
-				// if successfuly sent the email
+				// 202 means email is recived to sendgrid and it has been qeued or sent
 
 				let saveMail = new Mail({
 					to: sendMail.to,
@@ -236,7 +245,7 @@ async function sendMailNow(sendMail, respose) {
 					status: "SENT",
 				});
 
-				console.log("Mail Saved : ", saveMail);
+				console.log("Saving the mail");
 
 				saveMail
 					.save()
@@ -246,6 +255,7 @@ async function sendMailNow(sendMail, respose) {
 							status: data.status,
 						};
 						respose.json(details);
+						console.log("[POST] email response : ", details); // showing the result in console
 					})
 					.catch((err) => {
 						respose.json({ message: err });
@@ -260,10 +270,7 @@ async function sendMailNow(sendMail, respose) {
 async function sendMailNexdayMorning(sendMail, respose) {
 	try {
 		await sgMail.send(sendMail).then((res) => {
-			//console.log("CHECK STATUS ", res[0].statusCode == 250);
 			if (res[0].statusCode == 202) {
-				// if successfuly sent the email
-
 				let saveMail = new Mail({
 					to: sendMail.to,
 					subject: sendMail.subject,
@@ -272,7 +279,7 @@ async function sendMailNexdayMorning(sendMail, respose) {
 					status: "QUEUED",
 				});
 
-				console.log("Mail Saved : ", saveMail);
+				console.log("Saving the mail");
 
 				saveMail
 					.save()
@@ -282,6 +289,7 @@ async function sendMailNexdayMorning(sendMail, respose) {
 							status: data.status,
 						};
 						respose.json(details);
+						console.log("[POST] email response : ", details); // showing the result in console
 					})
 					.catch((err) => {
 						respose.json({ message: err });
