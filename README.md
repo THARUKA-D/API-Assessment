@@ -15,5 +15,5 @@
 6. __OR__ you can use __postman__ to check the API.
 7. To run the __API tests__,
   1. Open a __new terminal in vsCode__.
-  2.  In terminal type and enter: __npm test__( in the test 1st time it will show 2 passes , 2nd time only 1 will bw passed because of the DELETE request, you can use given other id s to check it again or , you can use POST request again in localhost and get that id and past it in the code)
+  2. In terminal type and enter: __npm test__ (in the test 1st time it will show 2 passes , 2nd time only 1 will bw passed because of the DELETE request, you can use given other id s to check it again or , you can use POST request again in localhost and get that id and past it in the code)
    
