@@ -1,7 +1,6 @@
 # API-Assessment
 
-#### curently I cant send messeges from sendgrid because my account has reached the free mail limit.. but all the POST mails will be added to __sendgrids Queue__ . the webhook url has also reached its timelimit and since the sendgrid has stoped working as expected (all mails are added to queue) the response will be allways added to queue..
-
+#### currently, I can't send messages from SendGrid because my account has reached the free mail limit.. but all the POST mails will be added to __sendgrids Queue__ . the webhook URL has also reached its time limit and since the SendGrid has stopped working as expected (all mails are added to the queue) the response will be always added to the queue..
 ## I tried to create 2 new sendgrid accounts, but sendgrid did not allow me to verify a sender... 
 
 ## In __Screenshot Folder__ there are some examples... (before updating the code now it will show the response from API in the terminal).
